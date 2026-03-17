@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ocr-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ocr-app
+  template:
+    metadata:
+      labels:
+        app: ocr-app
+    spec:
+      containers:
+        - name: ocr-app
+          image: "{{ .Values.env.IMAGE_NAME }}:{{ .Values.env.APP_VERSION }}"
+          ports:
+            - containerPort: 5000
