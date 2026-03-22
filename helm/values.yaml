@@ -1,3 +1,3 @@
 env:
-  APP_VERSION: ff609b3c8c87ddd906a209f56fc64cd4a3d42cd9
+  APP_VERSION: cd7cabd1dbb0d4acd56c5d5a04dbf5304465d1b2
   IMAGE_NAME: borpatika/ocr-app
