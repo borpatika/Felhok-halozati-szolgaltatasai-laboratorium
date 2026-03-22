@@ -8,7 +8,7 @@ def health():
 
 @app.route("/")
 def hello():
-    return "Hello OCR App"
+    return "Hello OCR App - new version"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
