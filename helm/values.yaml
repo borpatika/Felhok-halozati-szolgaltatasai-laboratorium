@@ -1,3 +1,18 @@
 env:
-  APP_VERSION: 87984714ebb7ba650a753b0bed0afe7bfc767bf1
+  APP_VERSION: latest
   IMAGE_NAME: borpatika/ocr-app
+
+django:
+  secretKey: "password"
+  debug: "False"
+  allowedHosts: "*"
+
+postgres:
+  db: ocrdb
+  user: ocruser
+  password: ocrpassword
+
+minio:
+  accessKey: minioadmin
+  secretKey: minioadmin
+  bucket: ocr-images

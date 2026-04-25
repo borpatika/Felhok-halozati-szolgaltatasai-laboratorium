@@ -1,0 +1,71 @@
+services:
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ocrdb
+      POSTGRES_USER: ocruser
+      POSTGRES_PASSWORD: ocrpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ocruser", "-d", "ocrdb"]
+      interval: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+        sleep 5;
+        mc alias set local http://minio:9000 minioadmin minioadmin;
+        mc mb --ignore-existing local/ocr-images;
+        mc anonymous set public local/ocr-images;
+        echo 'Bucket ready.';
+      "
+
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py makemigrations images &&
+            python manage.py migrate --noinput &&
+            python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: dev-secret-key
+      DEBUG: "True"
+      ALLOWED_HOSTS: "*"
+      DB_NAME: ocrdb
+      DB_USER: ocruser
+      DB_PASSWORD: ocrpassword
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: ocr-images
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_PUBLIC_HOST: "localhost:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+
+volumes:
+  postgres_data:
+  minio_data:

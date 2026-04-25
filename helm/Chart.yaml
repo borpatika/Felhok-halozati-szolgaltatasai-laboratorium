@@ -1,5 +1,6 @@
 apiVersion: v2
 name: ocr-app
 type: application
-version: 0.1.0
-appVersion: "1.0"
+version: 0.2.0
+appVersion: "2.0"
+description: OCR alapú felhőalkalmazás - Django + PostgreSQL + MinIO

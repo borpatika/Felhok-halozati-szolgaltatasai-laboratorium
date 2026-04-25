@@ -1,0 +1,29 @@
+{% extends "images/base.html" %}
+{% block content %}
+<h2>{{ obj.description }}</h2>
+<p style="color:#666;">Feltöltve: {{ obj.uploaded_at|date:"Y.m.d H:i" }}</p>
+
+<h3>Annotált kép (OCR bekeretezéssel)</h3>
+{% if obj.annotated_image %}
+  <img src="{{ obj.annotated_image.url }}" alt="Annotált kép"
+       style="max-width:100%;border:1px solid #ccc;margin-bottom:20px;">
+{% else %}
+  <p>Annotált kép nem elérhető.</p>
+{% endif %}
+
+<h3>Detektált szöveg</h3>
+{% if obj.ocr_text %}
+  <pre style="background:#f4f4f4;padding:16px;border-radius:4px;
+              white-space:pre-wrap;word-break:break-word;">{{ obj.ocr_text }}</pre>
+{% else %}
+  <p>Nem sikerült szöveget detektálni.</p>
+{% endif %}
+
+<h3>Eredeti kép</h3>
+{% if obj.image %}
+  <img src="{{ obj.image.url }}" alt="Eredeti kép"
+       style="max-width:100%;border:1px solid #ccc;">
+{% endif %}
+
+<p style="margin-top:24px;"><a href="/">&larr; Vissza a listához</a></p>
+{% endblock %}

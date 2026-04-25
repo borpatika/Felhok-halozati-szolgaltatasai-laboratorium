@@ -1,0 +1,31 @@
+{% extends "images/base.html" %}
+{% block content %}
+<h2>Feltöltött képek</h2>
+{% if images %}
+<table style="width:100%;border-collapse:collapse;">
+  <thead>
+    <tr style="border-bottom:2px solid #333;">
+      <th style="text-align:left;padding:8px;">Leírás</th>
+      <th style="text-align:left;padding:8px;">Feltöltve</th>
+      <th style="text-align:left;padding:8px;">Detektált szöveg</th>
+      <th style="padding:8px;"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for img in images %}
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:8px;">{{ img.description }}</td>
+      <td style="padding:8px;">{{ img.uploaded_at|date:"Y.m.d H:i" }}</td>
+      <td style="padding:8px;max-width:300px;overflow:hidden;
+                 text-overflow:ellipsis;white-space:nowrap;">
+        {{ img.ocr_text|truncatechars:80 }}
+      </td>
+      <td style="padding:8px;"><a href="/image/{{ img.pk }}/">Részletek</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p>Még nincs feltöltött kép. <a href="/upload/">Tölts fel egyet!</a></p>
+{% endif %}
+{% endblock %}

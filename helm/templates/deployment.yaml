@@ -12,27 +12,69 @@ spec:
       labels:
         app: ocr-app
     spec:
+      initContainers:
+        - name: migrate
+          image: "{{ .Values.env.IMAGE_NAME }}:{{ .Values.env.APP_VERSION }}"
+          command: ["python", "manage.py", "migrate", "--noinput"]
+          env:
+            - name: SECRET_KEY
+              value: "{{ .Values.django.secretKey }}"
+            - name: DB_NAME
+              value: "{{ .Values.postgres.db }}"
+            - name: DB_USER
+              value: "{{ .Values.postgres.user }}"
+            - name: DB_PASSWORD
+              value: "{{ .Values.postgres.password }}"
+            - name: DB_HOST
+              value: "postgres-service"
+            - name: MINIO_ACCESS_KEY
+              value: "{{ .Values.minio.accessKey }}"
+            - name: MINIO_SECRET_KEY
+              value: "{{ .Values.minio.secretKey }}"
+            - name: MINIO_BUCKET
+              value: "{{ .Values.minio.bucket }}"
+            - name: MINIO_ENDPOINT
+              value: "http://minio-service:9000"
       containers:
         - name: ocr-app
           image: "{{ .Values.env.IMAGE_NAME }}:{{ .Values.env.APP_VERSION }}"
           ports:
-            - name: http
-              containerPort: 5000
-              protocol: TCP
+            - containerPort: 8000
+          env:
+            - name: SECRET_KEY
+              value: "{{ .Values.django.secretKey }}"
+            - name: DEBUG
+              value: "{{ .Values.django.debug }}"
+            - name: ALLOWED_HOSTS
+              value: "{{ .Values.django.allowedHosts }}"
+            - name: DB_NAME
+              value: "{{ .Values.postgres.db }}"
+            - name: DB_USER
+              value: "{{ .Values.postgres.user }}"
+            - name: DB_PASSWORD
+              value: "{{ .Values.postgres.password }}"
+            - name: DB_HOST
+              value: "postgres-service"
+            - name: MINIO_ACCESS_KEY
+              value: "{{ .Values.minio.accessKey }}"
+            - name: MINIO_SECRET_KEY
+              value: "{{ .Values.minio.secretKey }}"
+            - name: MINIO_BUCKET
+              value: "{{ .Values.minio.bucket }}"
+            - name: MINIO_ENDPOINT
+              value: "http://minio-service:9000"
           readinessProbe:
             httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 10
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 15
             periodSeconds: 10
-            successThreshold: 1
             failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /health
-              port: 5000
-            initialDelaySeconds: 10
+              path: /health/
+              port: 8000
+            initialDelaySeconds: 15
             periodSeconds: 10
             timeoutSeconds: 5
-            successThreshold: 1
             failureThreshold: 3
