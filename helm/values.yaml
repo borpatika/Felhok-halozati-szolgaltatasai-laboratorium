@@ -1,5 +1,5 @@
 env:
-  APP_VERSION: 8bd26b274e1a436dba6f3087663afd274593e39c
+  APP_VERSION: f134497dc15313177c24c0774514630c8f752fae
   IMAGE_NAME: borpatika/ocr-app
 
 django:
