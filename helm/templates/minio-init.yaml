@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-init
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: minio-init
+          image: minio/mc:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              sleep 5;
+              mc alias set local http://minio-service:9000 {{ .Values.minio.accessKey }} {{ .Values.minio.secretKey }};
+              mc mb --ignore-existing local/{{ .Values.minio.bucket }};
+              mc anonymous set public local/{{ .Values.minio.bucket }};
+              echo 'Bucket ready.';
