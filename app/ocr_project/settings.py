@@ -60,7 +60,7 @@ DATABASES = {
 }
 
 # MinIO / S3 képtárolás
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'images.storage.ProxiedMinioStorage'
 AWS_ACCESS_KEY_ID = os.environ.get('MINIO_ACCESS_KEY', 'minioadmin')
 AWS_SECRET_ACCESS_KEY = os.environ.get('MINIO_SECRET_KEY', 'minioadmin')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('MINIO_BUCKET', 'ocr-images')
@@ -80,4 +80,3 @@ USE_I18N = True
 USE_TZ = True
 
 AWS_S3_URL_PROTOCOL = 'http:'
-AWS_S3_CUSTOM_DOMAIN = f"{os.environ.get('MINIO_PUBLIC_HOST', 'localhost:9000')}/{os.environ.get('MINIO_BUCKET', 'ocr-images')}"

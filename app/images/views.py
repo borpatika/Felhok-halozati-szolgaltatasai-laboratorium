@@ -4,6 +4,22 @@ from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from .models import UploadedImage
 from .ocr_utils import run_ocr_and_annotate
+import boto3
+from botocore.client import Config
+from django.conf import settings
+
+
+def serve_minio_image(request, path):
+    s3 = boto3.client(
+        's3',
+        endpoint_url=settings.AWS_S3_ENDPOINT_URL,
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        config=Config(signature_version='s3v4'),
+        verify=False,
+    )
+    obj = s3.get_object(Bucket=settings.AWS_STORAGE_BUCKET_NAME, Key=path)
+    return HttpResponse(obj['Body'].read(), content_type='image/png')
 
 
 def image_list(request):
