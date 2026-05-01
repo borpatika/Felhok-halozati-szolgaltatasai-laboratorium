@@ -56,3 +56,4 @@ def publish_image_event(image_obj):
         properties=pika.BasicProperties(delivery_mode=2)
     )
     connection.close()
+    print(f"[INFO] Event published: {image_obj.description}")
