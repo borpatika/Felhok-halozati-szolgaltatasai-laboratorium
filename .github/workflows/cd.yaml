@@ -13,7 +13,9 @@ permissions:
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
   DOCKERHUB_KEY: ${{ secrets.DOCKER_KEY }}
-  IMAGE_NAME: ocr-app
+  DJANGO_IMAGE_NAME: ocr-app
+  RABBITMQ_IMAGE_NAME: ocr-app-mq-worker
+
 
 jobs:
   build-and-deploy:
@@ -29,16 +31,25 @@ jobs:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.DOCKERHUB_KEY }}
 
-      - name: Build Docker image
-        run: cd ./app && docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+      - name: Build Docker image for django app
+        run: cd ./app && docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.DJANGO_IMAGE_NAME }}:${{ github.sha }} .
 
-      - name: Push Docker image
-        run: docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+      - name: Push Docker image for django app
+        run: docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.DJANGO_IMAGE_NAME }}:${{ github.sha }}
 
-      - name: Update values.yaml
+      - name: Build Docker image for rabbitmq
+        run: cd ./notif_worker && docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.RABBITMQ_IMAGE_NAME }}:${{ github.sha }} .
+
+      - name: Push Docker image for rabbitmq
+        run: docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.RABBITMQ_IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Update values.yaml (django + rabbit)
         run: |
           cd helm
-          sed -i 's|APP_VERSION:.*|APP_VERSION: '${{ github.sha }}'|' values.yaml
+          # Django APP_VERSION
+          sed -i '/^env:/,/^[^ ]/ s|APP_VERSION:.*|APP_VERSION: ${{ github.sha }}|' values.yaml
+          # Rabbit APP_VERSION
+          sed -i '/^rabbit:/,/^[^ ]/ s|APP_VERSION:.*|APP_VERSION: ${{ github.sha }}|' values.yaml
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           git add values.yaml

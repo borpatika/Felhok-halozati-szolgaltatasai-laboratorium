@@ -11,5 +11,7 @@ class UploadedImage(models.Model):
     class Meta:
         ordering = ['-uploaded_at']
 
-    def __str__(self):
-        return self.description
+
+class Subscriber(models.Model):
+    email = models.EmailField(unique=True)
+    subscribed_at = models.DateTimeField(auto_now_add=True)

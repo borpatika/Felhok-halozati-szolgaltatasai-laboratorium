@@ -2,11 +2,14 @@ import os
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
-from .models import UploadedImage
-from .ocr_utils import run_ocr_and_annotate
+from .models import UploadedImage, Subscriber
+from .ocr_utils import publish_image_event, run_ocr_and_annotate
 import boto3
 from botocore.client import Config
 from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 def serve_minio_image(request, path):
@@ -50,6 +53,7 @@ def image_upload(request):
             save=False
         )
         obj.save()
+        publish_image_event(obj)
         return redirect('image_detail', pk=obj.pk)
 
     return render(request, 'images/upload.html')
@@ -62,3 +66,21 @@ def image_detail(request, pk):
 
 def health(request):
     return HttpResponse('OK')
+
+
+@csrf_exempt
+def subscribe(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        email = data.get("email")
+
+        if not email:
+            return JsonResponse({"error": "email required"}, status=400)
+
+        sub, created = Subscriber.objects.get_or_create(email=email)
+
+        if created:
+            for img in UploadedImage.objects.all():
+                publish_image_event(img)
+
+        return JsonResponse({"status": "ok", "created": created})

@@ -1,6 +1,9 @@
 import pytesseract
 from PIL import Image, ImageDraw
 import io
+import json
+import pika
+import os
 
 
 def run_ocr_and_annotate(image_file):
@@ -29,4 +32,27 @@ def run_ocr_and_annotate(image_file):
     output.seek(0)
 
     return ' '.join(words), output
-      
+    
+
+def publish_image_event(image_obj):
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(
+            host=os.environ.get('RABBITMQ_HOST', 'rabbitmq')
+        )
+    )
+    channel = connection.channel()
+    channel.queue_declare(queue='image_events', durable=True)
+
+    event = {
+        "description": image_obj.description,
+        "ocr_text": image_obj.ocr_text,
+        "uploaded_at": str(image_obj.uploaded_at),
+    }
+
+    channel.basic_publish(
+        exchange='',
+        routing_key='image_events',
+        body=json.dumps(event),
+        properties=pika.BasicProperties(delivery_mode=2)
+    )
+    connection.close()

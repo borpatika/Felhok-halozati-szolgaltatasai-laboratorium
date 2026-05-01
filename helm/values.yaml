@@ -16,3 +16,7 @@ minio:
   accessKey: minioadmin
   secretKey: minioadmin
   bucket: ocr-images
+
+rabbit:
+  APP_VERSION: latest
+  IMAGE_NAME: borpatika/ocr-app-mq-worker

@@ -36,6 +36,8 @@ spec:
               value: "{{ .Values.minio.bucket }}"
             - name: MINIO_ENDPOINT
               value: "http://minio-service:9000"
+            - name: RABBITMQ_HOST
+              value: rabbitmq
       containers:
         - name: ocr-app
           image: "{{ .Values.env.IMAGE_NAME }}:{{ .Values.env.APP_VERSION }}"
@@ -64,6 +66,8 @@ spec:
               value: "{{ .Values.minio.bucket }}"
             - name: MINIO_ENDPOINT
               value: "http://minio-service:9000"
+            - name: RABBITMQ_HOST
+              value: rabbitmq
           readinessProbe:
             httpGet:
               path: /health/
