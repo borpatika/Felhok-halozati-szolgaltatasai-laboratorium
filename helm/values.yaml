@@ -1,5 +1,5 @@
 env:
-  APP_VERSION: b52e8620923fa3d9a201e119b2d0526ebd0726fa
+  APP_VERSION: 0760c30be85e94ff1651b9b159d4eb4aa499583e
   IMAGE_NAME: borpatika/ocr-app
 
 django:
@@ -18,5 +18,5 @@ minio:
   bucket: ocr-images
 
 rabbit:
-  APP_VERSION: b52e8620923fa3d9a201e119b2d0526ebd0726fa
+  APP_VERSION: 0760c30be85e94ff1651b9b159d4eb4aa499583e
   IMAGE_NAME: borpatika/ocr-app-mq-worker
